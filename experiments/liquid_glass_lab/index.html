@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LiquidGlassCursor V0.2 光学材质实验</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">LiquidGlassCursor · V0.2</p>
+        <h1>Liquid Glass 光学材质实验</h1>
+        <p class="intro">使用 WebGL2 对真实背景纹理进行折射、模糊和色散采样。箭头形状直接来自 V0.1 的 <code>assets/arrow.svg</code>。</p>
+      </div>
+      <div class="status-wrap">
+        <span id="statusDot" class="status-dot"></span>
+        <span id="statusText">正在初始化 WebGL2…</span>
+      </div>
+    </header>
+
+    <div id="webglError" class="error-panel" hidden>
+      <strong>此浏览器无法使用 WebGL2。</strong>
+      <span>请在支持 WebGL2 且已启用硬件加速的 Chrome、Edge 或 Firefox 中打开本页面。</span>
+    </div>
+
+    <section class="workspace">
+      <aside class="control-panel" aria-label="光学参数">
+        <div class="panel-section">
+          <div class="section-heading">
+            <h2>背景</h2>
+          </div>
+          <div class="segmented" id="backgroundButtons">
+            <button type="button" data-background="white">白色</button>
+            <button type="button" data-background="black">黑色</button>
+            <button type="button" data-background="gradient">渐变</button>
+            <button type="button" data-background="text" class="active">文字</button>
+          </div>
+          <label class="file-button">
+            <span>选择本地图片</span>
+            <input id="imageInput" type="file" accept="image/*">
+          </label>
+          <p class="small-note">图片只在当前浏览器内解码，不会上传。</p>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-heading">
+            <h2>效果开关</h2>
+            <button id="toggleAll" class="secondary-button" type="button">全部关闭</button>
+          </div>
+          <div class="toggle-grid">
+            <label><input id="enableRefraction" type="checkbox" checked>折射</label>
+            <label><input id="enableBlur" type="checkbox" checked>模糊</label>
+            <label><input id="enableEdge" type="checkbox" checked>边缘聚光</label>
+            <label><input id="enableDispersion" type="checkbox" checked>色散</label>
+            <label><input id="enableSpecular" type="checkbox" checked>镜面高光</label>
+          </div>
+        </div>
+
+        <div class="panel-section sliders">
+          <div class="section-heading"><h2>实时参数</h2><button id="resetDefaults" class="secondary-button" type="button">恢复默认</button></div>
+          <label class="range-row">
+            <span>折射位移</span><output id="refractionValue">2.8 px</output>
+            <input id="refraction" type="range" min="0" max="7" step="0.1" value="2.8">
+          </label>
+          <label class="range-row">
+            <span>内部模糊</span><output id="blurValue">0.8 px</output>
+            <input id="blur" type="range" min="0" max="3" step="0.1" value="0.8">
+          </label>
+          <label class="range-row">
+            <span>边缘亮度</span><output id="edgeValue">0.32</output>
+            <input id="edge" type="range" min="0" max="0.8" step="0.01" value="0.32">
+          </label>
+          <label class="range-row">
+            <span>色散距离</span><output id="dispersionValue">0.55 px</output>
+            <input id="dispersion" type="range" min="0" max="2" step="0.05" value="0.55">
+          </label>
+          <label class="range-row">
+            <span>镜面强度</span><output id="specularValue">0.26</output>
+            <input id="specular" type="range" min="0" max="0.7" step="0.01" value="0.26">
+          </label>
+        </div>
+
+        <div class="panel-section diagnostics">
+          <h2>诊断</h2>
+          <dl>
+            <div><dt>实际尺寸</dt><dd>32 × 32 px</dd></div>
+            <div><dt>形状来源</dt><dd id="maskSource">加载中</dd></div>
+            <div><dt>渲染器</dt><dd id="rendererName">加载中</dd></div>
+            <div><dt>帧率</dt><dd id="fpsValue">—</dd></div>
+          </dl>
+        </div>
+      </aside>
+
+      <section class="preview-panel">
+        <div class="preview-heading">
+          <div>
+            <h2>交互式背景采样</h2>
+            <p>在画布内移动鼠标。将箭头放在细文字或直线上，最容易观察局部像素位移。</p>
+          </div>
+          <span class="size-badge">实际光标：32px</span>
+        </div>
+        <div id="stage" class="stage">
+          <canvas id="glCanvas" aria-label="WebGL2 Liquid Glass 实验画布"></canvas>
+          <div class="actual-marker">32px 实际显示</div>
+        </div>
+        <div class="zoom-card">
+          <div>
+            <h3>放大光学检查</h3>
+            <p>截取实际 32px 区域并放大 10 倍。放大图只用于检查折射和通道偏移，不代表实际使用尺寸。</p>
+          </div>
+          <canvas id="zoomCanvas" width="320" height="320" aria-label="十倍放大检查"></canvas>
+        </div>
+      </section>
+    </section>
+
+    <footer>本页面不替换系统指针，不采集桌面，也不向网络发送本地图片。</footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
